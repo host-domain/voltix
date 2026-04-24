@@ -5,8 +5,8 @@ import { SettingsProvider } from "./context/SettingsContext";
 import { BoxesProvider }    from "./components/layout/BoxesContent";
 import { ToastProvider }    from "./context/ToastContext";
 import { ReadingsProvider } from "./context/ReadingsContext";
-import { SerialProvider } from "./context/SerialContext";
-import { AuthProvider } from "./context/AuthContext";
+import { SerialProvider }   from "./context/SerialContext";
+import { AuthProvider }     from "./context/AuthContext";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -14,15 +14,15 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <AuthProvider>
         <SettingsProvider>
-          <BoxesProvider>
-            <ReadingsProvider>
-              <SerialProvider>
-                <ToastProvider>
+          <ToastProvider>
+            <BoxesProvider>
+              <ReadingsProvider>
+                <SerialProvider>
                   <App />
-                </ToastProvider>
-              </SerialProvider>
-            </ReadingsProvider>
-          </BoxesProvider>
+                </SerialProvider>
+              </ReadingsProvider>
+            </BoxesProvider>
+          </ToastProvider>
         </SettingsProvider>
       </AuthProvider>
     </BrowserRouter>

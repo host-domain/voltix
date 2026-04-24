@@ -102,6 +102,7 @@ function TemperatureChart({ value, history, config, isAlert, axisRange }) {
       </div>
 
       <ReactApexChart
+        key={`${yMin}-${yMax}-${xPoints}`}
         options={options}
         series={[{ name: config.label, data: visibleHistory }]}
         type="area"

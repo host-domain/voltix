@@ -24,12 +24,12 @@ const defaultAxisRanges = {
   ir:          { yMin: 0,   yMax: 1,    xPoints: 20 },
 };
 
-function ThresholdModal({ device, onClose }) {
+function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
   const { updateThresholds, updateAxisRanges } = useBoxes();
   const { addToast }                           = useToast();
 
   // ── Active tab ────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState("thresholds"); // "thresholds" | "axes"
+  cconst [activeTab, setActiveTab] = useState(defaultTab); // "thresholds" | "axes"
 
   // ── Threshold state (unchanged) ───────────────────────────────────────────
   const [thresholds, setThresholds] = useState(() => {

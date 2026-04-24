@@ -6,7 +6,7 @@ import { SerialContext }   from "../context/SerialContext";
 function useDeviceData(device) {
   const { addReadings }             = useContext(ReadingsContext);
   const { settings }                = useContext(SettingsContext);
-  const { isConnected, latestData } = useContext(SerialContext);
+  const { latestData, connectionType } = useContext(SerialContext);  
   const { historyPoints }           = settings;
 
   const [currentReadings, setCurrentReadings] = useState({});
@@ -37,7 +37,7 @@ function useDeviceData(device) {
 
   // ── When new serial data arrives, update readings ─────────
   useEffect(() => {
-    if (!isConnected || !device?.sensors) return;
+    if (connectionType === "none" || !device?.sensors) return;
     if (Object.keys(latestData).length === 0) return;
 
     const newReading = {};

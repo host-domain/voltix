@@ -1,9 +1,9 @@
-import { Component } from "react";
-import sensorConfig     from "../../utils/sensorConfig";
-import TemperatureChart from "./TemperatureChart";
-import HumidityChart    from "./HumidityChart";
-import UVGauge          from "./UVGauge";
-import IRStatus         from "./IRStatus";
+import { Component }              from "react";
+import { getSensorConfig }         from "../../utils/sensorConfig";
+import TemperatureChart            from "./TemperatureChart";
+import HumidityChart               from "./HumidityChart";
+import UVGauge                     from "./UVGauge";
+import IRStatus                    from "./IRStatus";
 
 class SensorErrorBoundary extends Component {
   state = { hasError: false };
@@ -15,7 +15,8 @@ class SensorErrorBoundary extends Component {
         <div className="sensor-error">
           <span className="sensor-error__icon">⚠️</span>
           <span className="sensor-error__text">Chart unavailable</span>
-          <button className="sensor-error__retry" onClick={() => this.setState({ hasError: false })}>
+          <button className="sensor-error__retry"
+            onClick={() => this.setState({ hasError: false })}>
             Retry
           </button>
         </div>
@@ -25,14 +26,18 @@ class SensorErrorBoundary extends Component {
   }
 }
 
-// ── Chart picker — axisRange forwarded to line charts ─────────────────────────
-function SensorChart({ sensorType, value, history, isAlert, axisRange }) {
-  const config = sensorConfig[sensorType];
+// ── Chart picker ──────────────────────────────────────────────────────────────
+// sensorType can be "temperature", "temperature_1", "temperature_3" etc.
+// getSensorConfig handles stripping the suffix and updating the label.
+function SensorChart({ sensorType, value, history, isAlert, axisRange, cardSize }) {
+
+  const config = getSensorConfig(sensorType);
   if (!config) return null;
 
   switch (config.chartType) {
     case "line":
-      if (sensorType === "humidity") {
+      // route humidity base type to HumidityChart, everything else to TemperatureChart
+      if (sensorType.startsWith("humidity")) {
         return (
           <HumidityChart
             value={value}
@@ -65,14 +70,14 @@ function SensorChart({ sensorType, value, history, isAlert, axisRange }) {
           <div className="progress-sensor__header">
             <span>{config.icon} {config.label}</span>
             <span style={{ color: isAlert ? "#ff4757" : config.color }}>
-              {value} {config.unit}
+              {value ?? "--"} {config.unit}
             </span>
           </div>
           <div className="progress-bar">
             <div
               className="progress-bar__fill"
               style={{
-                width:      `${(value / config.max) * 100}%`,
+                width:      `${Math.min((value / config.max) * 100, 100)}%`,
                 background: isAlert ? "#ff4757" : config.color,
               }}
             />
@@ -84,7 +89,7 @@ function SensorChart({ sensorType, value, history, isAlert, axisRange }) {
     default:
       return (
         <div className="sensor-unknown">
-          <p>{config.icon} {config.label}: {value} {config.unit}</p>
+          <p>{config.icon} {config.label}: {value ?? "--"} {config.unit}</p>
         </div>
       );
   }

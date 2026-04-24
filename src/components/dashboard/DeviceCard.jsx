@@ -16,9 +16,10 @@ function DeviceCard({ device }) {
   const { removeBox, updateCardSize }                    = useBoxes();
   const { addToast }                                     = useToast();
   const { currentReadings, history, alerts, isLoading } = useDeviceData(device);
-  const [menuOpen,     setMenuOpen]                     = useState(false);
+  const [menuOpen,      setMenuOpen]                    = useState(false);
   const [showThreshold, setShowThreshold]               = useState(false);
-  const [showSizeMenu, setShowSizeMenu]                 = useState(false);
+  const [showSizeMenu,  setShowSizeMenu]                = useState(false);
+  const [defaultTab,    setDefaultTab]                  = useState("thresholds"); // ← NEW
 
   const hasAlert = Object.values(alerts).some((a) => a === true);
   const cardSize = device.cardSize || "normal";
@@ -66,16 +67,17 @@ function DeviceCard({ device }) {
               />
               <div className="card-menu__dropdown">
 
+                {/* ── CHANGED: sets defaultTab before opening ── */}
                 <div
                   className="card-menu__item"
-                  onClick={() => { setShowThreshold(true); setMenuOpen(false); }}
+                  onClick={() => { setDefaultTab("thresholds"); setShowThreshold(true); setMenuOpen(false); }}
                 >
                   ⚙️ Set Thresholds
                 </div>
 
                 <div
                   className="card-menu__item"
-                  onClick={() => { setShowThreshold(true); setMenuOpen(false); }}
+                  onClick={() => { setDefaultTab("axes"); setShowThreshold(true); setMenuOpen(false); }}
                 >
                   📊 Chart Axes
                 </div>
@@ -137,9 +139,11 @@ function DeviceCard({ device }) {
         ))}
       </div>
 
+      {/* ── CHANGED: passes defaultTab to modal ── */}
       {showThreshold && (
         <ThresholdModal
           device={device}
+          defaultTab={defaultTab}
           onClose={() => setShowThreshold(false)}
         />
       )}
