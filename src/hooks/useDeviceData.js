@@ -40,12 +40,17 @@ function useDeviceData(device) {
     if (connectionType === "none" || !device?.sensors) return;
     if (Object.keys(latestData).length === 0) return;
 
+  console.log("📡 latestData:", latestData);          // ← test purpose
+  console.log("📦 device.sensors:", device.sensors);  // ← test purpose
+
     const newReading = {};
     device.sensors.forEach((sensor) => {
       if (latestData[sensor] !== undefined) {
         newReading[sensor] = latestData[sensor];
       }
     });
+
+  console.log("✅ newReading:", newReading); // ← test purpose
 
     if (Object.keys(newReading).length === 0) return;
 

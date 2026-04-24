@@ -1,7 +1,7 @@
 import { useState } from "react";
-import sensorConfig   from "../../utils/sensorConfig";
-import { useBoxes }   from "../../hooks/useBoxes";
-import { useToast }   from "../../context/ToastContext";
+import { getSensorConfig } from "../../utils/sensorConfig";
+import { useBoxes }        from "../../hooks/useBoxes";
+import { useToast }        from "../../context/ToastContext";
 
 const defaultThresholds = {
   temperature: { min: 0,   max: 50  },
@@ -13,7 +13,6 @@ const defaultThresholds = {
   ir:          null,
 };
 
-// Default chart axis ranges per sensor (Y axis)
 const defaultAxisRanges = {
   temperature: { yMin: 0,   yMax: 50,   xPoints: 20 },
   humidity:    { yMin: 0,   yMax: 100,  xPoints: 20 },
@@ -28,10 +27,8 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
   const { updateThresholds, updateAxisRanges } = useBoxes();
   const { addToast }                           = useToast();
 
-  // ── Active tab ────────────────────────────────────────────────────────────
-  cconst [activeTab, setActiveTab] = useState(defaultTab); // "thresholds" | "axes"
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
-  // ── Threshold state (unchanged) ───────────────────────────────────────────
   const [thresholds, setThresholds] = useState(() => {
     const initial = {};
     device.sensors.forEach((sensor) => {
@@ -44,7 +41,6 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
     return initial;
   });
 
-  // ── Axis range state (new) ────────────────────────────────────────────────
   const [axisRanges, setAxisRanges] = useState(() => {
     const initial = {};
     device.sensors.forEach((sensor) => {
@@ -56,7 +52,6 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
     return initial;
   });
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleThresholdChange = (sensor, field, value) => {
     setThresholds((prev) => ({
       ...prev,
@@ -88,13 +83,11 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
 
-        {/* ── Header ──────────────────────────────────────────────────────── */}
         <div className="modal__header">
           <h2 className="modal__title">⚙️ {device.name}</h2>
           <button className="modal__close" onClick={onClose}>✕</button>
         </div>
 
-        {/* ── Tab Toggle ──────────────────────────────────────────────────── */}
         <div style={styles.tabRow}>
           <button
             style={activeTab === "thresholds" ? styles.tabActive : styles.tabIdle}
@@ -122,7 +115,7 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
             )}
 
             {thresholdSensors.map((sensor) => {
-              const config  = sensorConfig[sensor];
+              const config  = getSensorConfig(sensor); // ← fixed
               const current = thresholds[sensor];
               return (
                 <div key={sensor} className="threshold-row">
@@ -167,19 +160,17 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
             </p>
 
             {device.sensors.map((sensor) => {
-              const config  = sensorConfig[sensor];
+              const config  = getSensorConfig(sensor); // ← fixed
               const current = axisRanges[sensor];
               return (
                 <div key={sensor} className="threshold-row">
 
-                  {/* Sensor label */}
                   <div className="threshold-row__label">
                     <span>{config.icon}</span>
                     <span>{config.label}</span>
                     <span className="threshold-unit">({config.unit})</span>
                   </div>
 
-                  {/* Y-axis row */}
                   <div style={styles.axisGroup}>
                     <span style={styles.axisGroupLabel}>Y — Axis</span>
                     <div className="threshold-row__inputs">
@@ -205,7 +196,6 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
                     </div>
                   </div>
 
-                  {/* X-axis row — only for line/progressbar charts, not gauge/status */}
                   {config.chartType !== "gauge" && config.chartType !== "status" && (
                     <div style={styles.axisGroup}>
                       <span style={styles.axisGroupLabel}>X — Data Points</span>
@@ -230,7 +220,6 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
           </>
         )}
 
-        {/* ── Actions ─────────────────────────────────────────────────────── */}
         <div className="modal__actions">
           <button className="modal__cancel" onClick={onClose}>Cancel</button>
           <button className="modal__submit" onClick={handleSave}>
@@ -243,7 +232,6 @@ function ThresholdModal({ device, defaultTab = "thresholds", onClose }) {
   );
 }
 
-// ── Local styles (no new CSS classes needed) ──────────────────────────────────
 const styles = {
   tabRow: {
     display:       "flex",
