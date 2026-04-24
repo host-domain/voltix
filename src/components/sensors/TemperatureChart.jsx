@@ -4,13 +4,15 @@ function TemperatureChart({ value, history, config, isAlert, axisRange }) {
   const alertColor  = "#ff4757";
   const activeColor = isAlert ? alertColor : config.color;
 
-  // ── Apply axisRange if set, otherwise fall back to sensorConfig defaults ──
+  // ── Axis range handling ───────────────────────────────
   const yMin    = axisRange?.yMin    ?? config.min;
   const yMax    = axisRange?.yMax    ?? config.max;
   const xPoints = axisRange?.xPoints ?? 20;
 
-  // ── Slice history to xPoints — only show the last N points ───────────────
-  const visibleHistory = (history || []).slice(-xPoints);
+  // ✅ FIX: Remove null/undefined values → prevents NaN errors
+  const visibleHistory = (history || [])
+    .filter(v => v !== null && v !== undefined)
+    .slice(-xPoints);
 
   const options = {
     chart: {
@@ -20,7 +22,7 @@ function TemperatureChart({ value, history, config, isAlert, axisRange }) {
         easing: "smooth",
         dynamicAnimation: { speed: 600 },
       },
-      toolbar:    { show: false },
+      toolbar: { show: false },
       background: "transparent",
     },
 
@@ -29,17 +31,17 @@ function TemperatureChart({ value, history, config, isAlert, axisRange }) {
       formatter: (val, opts) =>
         opts.dataPointIndex % 5 === 4 ? `${Math.round(val)}` : "",
       style: {
-        fontSize:   "10px",
+        fontSize: "10px",
         fontWeight: "600",
-        colors:     ["#000000"],
+        colors: ["#000000"],
       },
       background: {
-        enabled:      true,
-        padding:      3,
+        enabled: true,
+        padding: 3,
         borderRadius: 3,
-        borderWidth:  0,
-        opacity:      0.75,
-        dropShadow:   { enabled: false },
+        borderWidth: 0,
+        opacity: 0.75,
+        dropShadow: { enabled: false },
       },
       offsetY: -6,
     },
@@ -48,42 +50,43 @@ function TemperatureChart({ value, history, config, isAlert, axisRange }) {
     colors: [activeColor],
 
     xaxis: {
-      labels:     { show: false },
+      labels: { show: false },
       axisBorder: { show: false },
-      axisTicks:  { show: false },
-      tooltip:    { enabled: false },
+      axisTicks: { show: false },
+      tooltip: { enabled: false },
     },
 
+    // ✅ FIX: Better tick distribution
     yaxis: {
-      min:        yMin,   // ← from axisRange
-      max:        yMax,   // ← from axisRange
-      tickAmount: 2,
+      min: yMin,
+      max: yMax,
+      tickAmount: 5, // ← was 2
       labels: {
-        style:     { colors: "#6b8299", fontSize: "10px" },
+        style: { colors: "#6b8299", fontSize: "10px" },
         formatter: (val) => `${Math.round(val)}${config.unit}`,
-        offsetX:   -4,
+        offsetX: -4,
       },
     },
 
     grid: {
-      borderColor:     "#1f2d3a",
+      borderColor: "#1f2d3a",
       strokeDashArray: 4,
       padding: { left: 0, right: 8, top: 8, bottom: 0 },
     },
 
     tooltip: {
       theme: "dark",
-      x:     { show: false },
-      y:     { formatter: (val) => `${val} ${config.unit}` },
+      x: { show: false },
+      y: { formatter: (val) => `${val} ${config.unit}` },
     },
 
     fill: {
       type: "gradient",
       gradient: {
         shadeIntensity: 1,
-        opacityFrom:    0.25,
-        opacityTo:      0,
-        stops:          [0, 100],
+        opacityFrom: 0.25,
+        opacityTo: 0,
+        stops: [0, 100],
       },
     },
 
@@ -95,9 +98,11 @@ function TemperatureChart({ value, history, config, isAlert, axisRange }) {
       <div className="sensor-chart__header">
         <span className="sensor-chart__icon">{config.icon}</span>
         <span className="sensor-chart__label">{config.label}</span>
+
         <span className="sensor-chart__value" style={{ color: activeColor }}>
           {value ?? "--"} {config.unit}
         </span>
+
         {isAlert && <span className="alert-icon">⚠️</span>}
       </div>
 
@@ -109,7 +114,9 @@ function TemperatureChart({ value, history, config, isAlert, axisRange }) {
         height={110}
       />
 
-      {isAlert && <p className="alert-text">⚠️ Outside threshold range</p>}
+      {isAlert && (
+        <p className="alert-text">⚠️ Outside threshold range</p>
+      )}
     </div>
   );
 }
